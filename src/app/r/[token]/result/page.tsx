@@ -1,0 +1,130 @@
+import { headers } from "next/headers";
+import { notFound, redirect } from "next/navigation";
+import { Container } from "@/components/Container";
+import { Logo } from "@/components/Logo";
+import { PercentileMeter } from "@/components/Meter";
+import { CopyLinkButton } from "@/components/CopyLinkButton";
+import {
+  getRespondentByToken,
+  computePercentile,
+  getCohortRange,
+} from "@/lib/respondents";
+import { trackLabel, levelLabel } from "@/lib/tracks";
+import { formatILS } from "@/lib/salary";
+
+async function getOrigin() {
+  const h = await headers();
+  const host = h.get("host");
+  const protocol = host?.startsWith("localhost") ? "http" : "https";
+  return `${protocol}://${host}`;
+}
+
+export default async function ResultPage({
+  params,
+}: PageProps<"/r/[token]/result">) {
+  const { token } = await params;
+  const respondent = await getRespondentByToken(token);
+  if (!respondent) notFound();
+  if (respondent.reported_salary === null) redirect(`/r/${token}/details`);
+
+  const [percentile, range, origin] = await Promise.all([
+    computePercentile(respondent.track, respondent.level, respondent.reported_salary),
+    getCohortRange(respondent.track, respondent.level),
+    getOrigin(),
+  ]);
+  const topPercent = Math.max(1, 100 - percentile);
+
+  let referrerComparison: { topPercent: number; diff: number } | null = null;
+  if (respondent.referred_by_token) {
+    const referrer = await getRespondentByToken(respondent.referred_by_token);
+    if (referrer && referrer.reported_salary !== null) {
+      const referrerPercentile = await computePercentile(
+        referrer.track,
+        referrer.level,
+        referrer.reported_salary
+      );
+      referrerComparison = {
+        topPercent: Math.max(1, 100 - referrerPercentile),
+        diff: percentile - referrerPercentile,
+      };
+    }
+  }
+
+  const shareLink = `${origin}/from/${token}`;
+  const shareMessage = `אני בטופ ${topPercent}% מ${trackLabel(respondent.track)} בישראל. תבדוק גם אתה כמה אתה שווה:`;
+  const whatsappHref = `https://wa.me/?text=${encodeURIComponent(`${shareMessage} ${shareLink}`)}`;
+
+  return (
+    <Container>
+      <div className="flex flex-1 flex-col gap-10 py-8">
+        <Logo size={20} />
+
+        <div className="flex flex-col gap-2">
+          <p className="section-heading text-ink-muted">
+            {levelLabel(respondent.track, respondent.level)} ·{" "}
+            {trackLabel(respondent.track)}
+          </p>
+          <p className="h1-display text-ink tabular-nums">
+            בטופ {topPercent}%
+          </p>
+          <p className="body-text text-ink-muted">
+            אתה מרוויח יותר מ-{percentile}% מ
+            {trackLabel(respondent.track)} בדרגתך שכבר בדקו.
+          </p>
+        </div>
+
+        <PercentileMeter percent={percentile} />
+
+        {range && (
+          <p className="body-text text-ink-muted">
+            השכר שדיווחת: <span className="field-value text-ink">{formatILS(respondent.reported_salary)}</span>.
+            הטווח בקבוצה שלך: {formatILS(range.p15)} – {formatILS(range.p85)}.
+          </p>
+        )}
+
+        {referrerComparison && (
+          <div className="flex flex-col gap-1 border-t border-divider pt-4">
+            <p className="field-value text-ink">מול מי ששלח לך את זה</p>
+            <p className="body-text text-ink-muted">
+              {referrerComparison.diff === 0
+                ? "אתם בדיוק באותו מקום יחסית לתחום של כל אחד מכם."
+                : referrerComparison.diff > 0
+                  ? `אתה גבוה ב-${referrerComparison.diff} נקודות אחוזון ממי ששלח לך את זה.`
+                  : `מי ששלח לך את זה גבוה ממך ב-${Math.abs(referrerComparison.diff)} נקודות אחוזון.`}
+            </p>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-3">
+          <p className="section-heading text-ink-muted">שתפו את התוצאה</p>
+          <a
+            href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex h-13 w-full items-center justify-center rounded-lg bg-coral px-5 text-[15px] font-semibold text-white"
+            style={{ height: 52 }}
+          >
+            שיתוף בוואטסאפ
+          </a>
+          <CopyLinkButton link={shareLink} />
+        </div>
+
+        <div className="flex flex-col gap-2 border-t border-divider pt-4">
+          <p className="section-heading text-ink-muted">הפרטיות שלך</p>
+          {respondent.delete_code && (
+            <p className="body-text text-ink-muted">
+              קוד המחיקה שלך:{" "}
+              <span className="field-value text-ink tabular-nums">
+                {respondent.delete_code}
+              </span>
+              . שמרו אותו -- זה הדרך היחידה למחוק את הנתונים שלכם.{" "}
+              <a href="/delete" className="text-coral">
+                מחיקה
+              </a>
+            </p>
+          )}
+        </div>
+      </div>
+    </Container>
+  );
+}

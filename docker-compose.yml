@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: vort
+      POSTGRES_PASSWORD: vort
+      POSTGRES_DB: vort
+    ports:
+      - "5432:5432"
+    volumes:
+      - vort_pgdata:/var/lib/postgresql/data
+
+volumes:
+  vort_pgdata:
