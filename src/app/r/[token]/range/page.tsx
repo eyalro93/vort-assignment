@@ -55,9 +55,12 @@ export default async function RangeResultPage({
           <PrimaryLinkButton href={`/r/${token}/details`}>
             רוצים לדעת בדיוק איפה אתם עומדים?
           </PrimaryLinkButton>
-          <p className="field-value text-center text-ink">
-            בלי טווח הפעם: המספר המדויק שלכם, ומה יכול להעלות אותו
-          </p>
+          <div className="flex flex-col gap-1 text-center">
+            <p className="field-value text-ink">הטווח הוא רק ההתחלה.</p>
+            <p className="body-text text-ink-muted">
+              גלו איפה אתם בתוכו ומה יכול לקחת אתכם גבוה יותר.
+            </p>
+          </div>
         </div>
       </div>
     </Container>
