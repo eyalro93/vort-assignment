@@ -58,7 +58,7 @@ export default async function RangeResultPage({
           <div className="flex flex-col gap-1 text-center">
             <p className="field-value text-ink">הטווח הוא רק ההתחלה.</p>
             <p className="body-text text-ink-muted">
-              גלו איפה אתם בתוכו ומה יכול לקחת אתכם גבוה יותר.
+              גלו את מיקומכם המדויק ומה יכול להביא אתכם לשלב הבא.
             </p>
           </div>
         </div>
