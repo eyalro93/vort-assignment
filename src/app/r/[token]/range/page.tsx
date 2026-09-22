@@ -56,7 +56,7 @@ export default async function RangeResultPage({
             רוצים לדעת בדיוק איפה אתם עומדים?
           </PrimaryLinkButton>
           <p className="field-value text-center text-ink">
-            אחוזון מדויק בקבוצה שלכם, ומה יכול להעלות את השווי שלכם
+            בלי טווח הפעם: המספר המדויק שלכם, ומה יכול להעלות אותו
           </p>
         </div>
       </div>
