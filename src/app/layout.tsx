@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Heebo } from "next/font/google";
+import { headers } from "next/headers";
 import "./globals.css";
 
 const heebo = Heebo({
@@ -8,12 +9,22 @@ const heebo = Heebo({
   weight: ["300", "400", "500", "600", "700", "800", "900"],
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
-  title: "Vort — כמה אתה שווה",
-  description:
-    "בנצ׳מרק שכר לאנשי תקשורת ומדיה בישראל. חמש שאלות, טווח שכר מיידי, ומדויק יותר אם תרצו.",
-};
+// metadataBase is derived from the actual request host (rather than a fixed
+// env var) so absolute OG image URLs resolve correctly whether this is
+// opened via localhost, a LAN IP for phone testing, or a public tunnel --
+// all of which WhatsApp's own crawler needs to be able to reach.
+export async function generateMetadata(): Promise<Metadata> {
+  const h = await headers();
+  const host = h.get("host") ?? "localhost:3000";
+  const protocol = host.startsWith("localhost") ? "http" : "https";
+
+  return {
+    metadataBase: new URL(`${protocol}://${host}`),
+    title: "Vort — כמה אתה שווה",
+    description:
+      "בנצ׳מרק שכר לאנשי תקשורת ומדיה בישראל. חמש שאלות, טווח שכר מיידי, ומדויק יותר אם תרצו.",
+  };
+}
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
