@@ -56,7 +56,8 @@ export default async function RangeResultPage({
             רוצה לדעת בדיוק איפה אתה עומד?
           </PrimaryLinkButton>
           <p className="body-text text-center text-ink-muted">
-            תעלה קורות חיים ותקבל את האחוזון המדויק שלך בקבוצה
+            תעלה קורות חיים, תקבל את האחוזון המדויק שלך בקבוצה, ותראה מה יכול
+            להעלות את השווי שלך
           </p>
         </div>
       </div>
