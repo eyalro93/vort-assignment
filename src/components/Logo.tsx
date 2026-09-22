@@ -4,7 +4,7 @@
 export function Logo({ size = 24 }: { size?: number }) {
   const iconSize = size * 1.25;
   return (
-    <span className="inline-flex items-center gap-3">
+    <span className="inline-flex w-fit items-center gap-3 self-center">
       <svg
         width={iconSize}
         height={iconSize}
