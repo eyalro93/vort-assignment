@@ -42,7 +42,7 @@ export const BASE_RANGE: Record<TrackId, Record<string, [number, number]>> = {
 // Multiplied onto the base range. A national broadcaster/major outlet (or
 // in-house corporate comms, for PR) pays a premium; freelance carries the
 // widest spread, reflected by giving it extra noise below.
-const WORKPLACE_MULTIPLIER: Record<string, number> = {
+export const WORKPLACE_MULTIPLIER: Record<string, number> = {
   major_outlet: 1.15,
   in_house: 1.15,
   digital_native: 0.95,
@@ -50,14 +50,14 @@ const WORKPLACE_MULTIPLIER: Record<string, number> = {
   freelance: 0.85,
 };
 
-const EXPERIENCE_MULTIPLIER: Record<string, number> = {
+export const EXPERIENCE_MULTIPLIER: Record<string, number> = {
   "0-2": 0.95,
   "3-5": 1.0,
   "6-10": 1.05,
   "11+": 1.1,
 };
 
-const MANAGES_TEAM_MULTIPLIER = 1.08;
+export const MANAGES_TEAM_MULTIPLIER = 1.08;
 
 export type Cohort = {
   track: string;
@@ -92,6 +92,22 @@ export function generateSalary(cohort: Cohort, rng: Rng): number {
     base * workplaceMult * experienceMult * teamMult * noise(rng, spread);
 
   return Math.round(salary / 100) * 100;
+}
+
+// Same multipliers as generateSalary, but the deterministic midpoint with no
+// random noise -- used to compare two hypothetical scenarios (e.g. "what if
+// this person managed a team") rather than to draw a sample.
+export function estimatedSalary(cohort: Cohort): number {
+  const [min, max] = BASE_RANGE[cohort.track as TrackId]?.[cohort.level] ?? [
+    10000, 15000,
+  ];
+  const base = (min + max) / 2;
+
+  const workplaceMult = WORKPLACE_MULTIPLIER[cohort.workplaceType] ?? 1;
+  const experienceMult = EXPERIENCE_MULTIPLIER[cohort.yearsExperience] ?? 1;
+  const teamMult = cohort.managesTeam ? MANAGES_TEAM_MULTIPLIER : 1;
+
+  return base * workplaceMult * experienceMult * teamMult;
 }
 
 export function formatILS(amount: number): string {

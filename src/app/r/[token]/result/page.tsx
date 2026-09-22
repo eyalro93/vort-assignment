@@ -11,6 +11,7 @@ import {
 } from "@/lib/respondents";
 import { trackLabel, levelLabel } from "@/lib/tracks";
 import { formatILS } from "@/lib/salary";
+import { getGrowthSuggestions } from "@/lib/growth-suggestions";
 
 async function getOrigin() {
   const h = await headers();
@@ -33,6 +34,7 @@ export default async function ResultPage({
     getOrigin(),
   ]);
   const topPercent = Math.max(1, 100 - percentile);
+  const growthSuggestions = getGrowthSuggestions(respondent);
 
   let referrerComparison: { topPercent: number; diff: number } | null = null;
   if (respondent.referred_by_token) {
@@ -81,6 +83,32 @@ export default async function ResultPage({
             הטווח בקבוצה שלך: {formatILS(range.p15)} – {formatILS(range.p85)}.
           </p>
         )}
+
+        <div className="flex flex-col gap-4">
+          <p className="section-heading text-ink-muted">
+            מה יכול להעלות את השווי שלך
+          </p>
+          {growthSuggestions.length > 0 ? (
+            growthSuggestions.slice(0, 3).map((s) => (
+              <div
+                key={s.title}
+                className="flex flex-col gap-1 border-t border-divider pt-4"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <p className="field-value text-ink">{s.title}</p>
+                  <p className="field-value shrink-0 text-ink tabular-nums">
+                    {s.deltaLabel}
+                  </p>
+                </div>
+                <p className="body-text text-ink-muted">{s.body}</p>
+              </div>
+            ))
+          ) : (
+            <p className="body-text border-t border-divider pt-4 text-ink-muted">
+              אתה כבר בפרופיל המשתלם ביותר בקטגוריה שלך.
+            </p>
+          )}
+        </div>
 
         {referrerComparison && (
           <div className="flex flex-col gap-2 border-t border-divider pt-4">
