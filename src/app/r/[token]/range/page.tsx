@@ -51,14 +51,16 @@ export default async function RangeResultPage({
           </p>
         )}
 
-        <div className="mt-auto flex flex-col gap-3">
+        <div className="mt-auto flex flex-col gap-4">
+          <div className="flex flex-col gap-1 text-center">
+            <p className="section-heading text-ink-muted">מה תקבלו</p>
+            <p className="field-value text-ink">
+              אחוזון מדויק בקבוצה שלכם, ומה יכול להעלות את השווי שלכם
+            </p>
+          </div>
           <PrimaryLinkButton href={`/r/${token}/details`}>
             רוצים לדעת בדיוק איפה אתם עומדים?
           </PrimaryLinkButton>
-          <p className="body-text text-center text-ink-muted">
-            תעלו קורות חיים, תקבלו את האחוזון המדויק שלכם בקבוצה, ותראו מה
-            יכול להעלות את השווי שלכם
-          </p>
         </div>
       </div>
     </Container>
