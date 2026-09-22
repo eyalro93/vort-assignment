@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(`${protocol}://${host}`),
-    title: "Vort — כמה אתה שווה",
+    title: "Vort — כמה אתם שווים",
     description:
       "בנצ׳מרק שכר לאנשי תקשורת ומדיה בישראל. חמש שאלות, טווח שכר מיידי, ומדויק יותר אם תרצו.",
   };

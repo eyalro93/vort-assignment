@@ -12,8 +12,8 @@ export async function generateMetadata({
   const card = await getReferralCard(token);
 
   const title = card
-    ? `מישהו בטופ ${card.topPercent}% מ${trackLabel(card.track)} שלח לך את זה`
-    : "Vort — כמה אתה שווה";
+    ? `מישהו בטופ ${card.topPercent}% מ${trackLabel(card.track)} שלח לכם את זה`
+    : "Vort — כמה אתם שווים";
   const description =
     "בנצ׳מרק שכר לאנשי תקשורת ומדיה בישראל. חמש שאלות, וטווח שכר מיידי.";
 
@@ -43,15 +43,15 @@ export default async function ReferralLandingPage({
                 {levelLabel(card.track, card.level)} · {trackLabel(card.track)}
               </p>
               <h1 className="h1-display text-ink">
-                מישהו שאתה מכיר בטופ {card.topPercent}% בתחום
+                מישהו שאתם מכירים בטופ {card.topPercent}% בתחום
               </h1>
               <p className="h2-sub text-ink-body">
-                תבדוק איפה אתה עומד מולם. חמש שאלות קצרות, וטווח שכר מיידי.
+                תבדקו איפה אתם עומדים מולם. חמש שאלות קצרות, וטווח שכר מיידי.
               </p>
             </>
           ) : (
             <>
-              <h1 className="h1-display text-ink">כמה אתה שווה?</h1>
+              <h1 className="h1-display text-ink">כמה אתם שווים?</h1>
               <p className="h2-sub text-ink-body">
                 בנצ׳מרק שכר לאנשי תקשורת ומדיה בישראל. חמש שאלות קצרות, וטווח
                 שכר מיידי.
@@ -62,7 +62,7 @@ export default async function ReferralLandingPage({
 
         <div className="flex flex-col gap-3">
           <PrimaryLinkButton href={checkHref}>
-            בדוק את השווי שלך
+            בדקו את השווי שלכם
           </PrimaryLinkButton>
           <p className="body-text text-center text-ink-muted">
             שלוש דקות. בלי הרשמה. בלי קורות חיים בשלב הזה.

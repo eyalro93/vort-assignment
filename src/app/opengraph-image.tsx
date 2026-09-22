@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { loadHeeboFont } from "@/lib/og-font";
 
-export const alt = "Vort — כמה אתה שווה";
+export const alt = "Vort — כמה אתם שווים";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -49,7 +49,7 @@ export default async function Image() {
             color: "#2B2326",
           }}
         >
-          כמה אתה שווה?
+          כמה אתם שווים?
         </span>
 
         <span style={{ fontSize: 28, color: "#76696D" }}>

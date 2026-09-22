@@ -53,7 +53,7 @@ export default async function ResultPage({
   }
 
   const shareLink = `${origin}/from/${token}`;
-  const shareMessage = `אני בטופ ${topPercent}% מ${trackLabel(respondent.track)} בישראל. תבדוק גם אתה כמה אתה שווה:`;
+  const shareMessage = `אני בטופ ${topPercent}% מ${trackLabel(respondent.track)} בישראל. תבדקו גם אתם כמה אתם שווים:`;
   const whatsappHref = `https://wa.me/?text=${encodeURIComponent(`${shareMessage} ${shareLink}`)}`;
 
   return (
@@ -70,8 +70,8 @@ export default async function ResultPage({
             בטופ {topPercent}%
           </p>
           <p className="body-text text-ink-muted">
-            אתה מרוויח יותר מ-{percentile}% מ
-            {trackLabel(respondent.track)} בדרגתך שכבר בדקו.
+            אתם מרוויחים יותר מ-{percentile}% מ
+            {trackLabel(respondent.track)} בדרגתכם שכבר בדקו.
           </p>
         </div>
 
@@ -79,14 +79,14 @@ export default async function ResultPage({
 
         {range && (
           <p className="body-text text-ink-muted">
-            השכר שדיווחת: <span className="field-value text-ink">{formatILS(respondent.reported_salary)}</span>.
-            הטווח בקבוצה שלך: {formatILS(range.p15)} – {formatILS(range.p85)}.
+            השכר שדיווחתם: <span className="field-value text-ink">{formatILS(respondent.reported_salary)}</span>.
+            הטווח בקבוצה שלכם: {formatILS(range.p15)} – {formatILS(range.p85)}.
           </p>
         )}
 
         <div className="flex flex-col gap-4">
           <p className="section-heading text-ink-muted">
-            מה יכול להעלות את השווי שלך
+            מה יכול להעלות את השווי שלכם
           </p>
           {growthSuggestions.length > 0 ? (
             growthSuggestions.slice(0, 3).map((s) => (
@@ -105,20 +105,20 @@ export default async function ResultPage({
             ))
           ) : (
             <p className="body-text border-t border-divider pt-4 text-ink-muted">
-              אתה כבר בפרופיל המשתלם ביותר בקטגוריה שלך.
+              אתם כבר בפרופיל המשתלם ביותר בקטגוריה שלכם.
             </p>
           )}
         </div>
 
         {referrerComparison && (
           <div className="flex flex-col gap-2 border-t border-divider pt-4">
-            <p className="field-value text-ink">מול מי ששלח לך את זה</p>
+            <p className="field-value text-ink">מול מי ששלח לכם את זה</p>
             <p className="body-text text-ink-muted">
               {referrerComparison.diff === 0
                 ? "אתם בדיוק באותו מקום יחסית לתחום של כל אחד מכם."
                 : referrerComparison.diff > 0
-                  ? `אתה גבוה ב-${referrerComparison.diff} נקודות אחוזון ממי ששלח לך את זה.`
-                  : `מי ששלח לך את זה גבוה ממך ב-${Math.abs(referrerComparison.diff)} נקודות אחוזון.`}
+                  ? `אתם גבוהים ב-${referrerComparison.diff} נקודות אחוזון ממי ששלח לכם את זה.`
+                  : `מי ששלח לכם את זה גבוה מכם ב-${Math.abs(referrerComparison.diff)} נקודות אחוזון.`}
             </p>
           </div>
         )}
@@ -138,10 +138,10 @@ export default async function ResultPage({
         </div>
 
         <div className="flex flex-col gap-2 border-t border-divider pt-4">
-          <p className="section-heading text-ink-muted">הפרטיות שלך</p>
+          <p className="section-heading text-ink-muted">הפרטיות שלכם</p>
           {respondent.delete_code && (
             <p className="body-text text-ink-muted">
-              קוד המחיקה שלך:{" "}
+              קוד המחיקה שלכם:{" "}
               <span className="field-value text-ink tabular-nums">
                 {respondent.delete_code}
               </span>

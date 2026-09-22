@@ -47,34 +47,34 @@ export function QuizFlow({ referredByToken }: { referredByToken: string | null }
 
   const steps = [
     {
-      question: "באיזה תחום אתה עובד?",
+      question: "באיזה תחום אתם עובדים?",
       options: TRACKS.map((t) => ({ id: t.id, label: t.label })),
       value: answers.track,
       onSelect: (id: string) =>
         setAnswers({ ...EMPTY_ANSWERS, track: id }), // changing track resets dependent answers
     },
     {
-      question: "באיזו רמה אתה נמצא?",
+      question: "באיזו רמה אתם נמצאים?",
       options: levels,
       value: answers.level,
       onSelect: (id: string) => setAnswers((a) => ({ ...a, level: id })),
     },
     {
-      question: "איפה אתה עובד?",
+      question: "איפה אתם עובדים?",
       options: workplaces,
       value: answers.workplaceType,
       onSelect: (id: string) =>
         setAnswers((a) => ({ ...a, workplaceType: id })),
     },
     {
-      question: "כמה שנות ניסיון יש לך?",
+      question: "כמה שנות ניסיון יש לכם?",
       options: EXPERIENCE_BUCKETS,
       value: answers.yearsExperience,
       onSelect: (id: string) =>
         setAnswers((a) => ({ ...a, yearsExperience: id })),
     },
     {
-      question: "האם אתה מנהל/ת צוות?",
+      question: "האם אתם מנהלים צוות?",
       options: [
         { id: "yes", label: "כן" },
         { id: "no", label: "לא" },

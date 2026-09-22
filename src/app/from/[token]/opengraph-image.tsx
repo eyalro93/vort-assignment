@@ -3,7 +3,7 @@ import { getReferralCard } from "@/lib/respondents";
 import { trackLabel, levelLabel } from "@/lib/tracks";
 import { loadHeeboFont } from "@/lib/og-font";
 
-export const alt = "Vort — כמה אתה שווה";
+export const alt = "Vort — כמה אתם שווים";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -20,7 +20,7 @@ export default async function Image({
     loadHeeboFont(800),
   ]);
 
-  const headline = card ? `בטופ ${card.topPercent}%` : "כמה אתה שווה?";
+  const headline = card ? `בטופ ${card.topPercent}%` : "כמה אתם שווים?";
   const subline = card
     ? `${levelLabel(card.track, card.level)} · ${trackLabel(card.track)} בישראל`
     : "בנצ׳מרק שכר לאנשי תקשורת ומדיה בישראל";

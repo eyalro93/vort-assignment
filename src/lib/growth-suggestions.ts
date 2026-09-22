@@ -61,7 +61,7 @@ export function getGrowthSuggestions(respondent: {
   if (!base.managesTeam) {
     addIfPositive(
       "ניהול צוות",
-      "אנשי תקשורת שמנהלים צוות בתפקיד שלך",
+      "אנשי תקשורת שמנהלים צוות בתפקיד שלכם",
       { ...base, managesTeam: true }
     );
   }
@@ -86,7 +86,7 @@ export function getGrowthSuggestions(respondent: {
     const nextLevel = levels[levelIndex + 1];
     addIfPositive(
       `קידום ל${nextLevel.label}`,
-      "השכר הממוצע בתפקיד הבא בסולם הקריירה שלך",
+      "השכר הממוצע בתפקיד הבא בסולם הקריירה שלכם",
       { ...base, level: nextLevel.id }
     );
   }

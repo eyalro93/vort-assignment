@@ -21,7 +21,7 @@ export function DeleteForm() {
 
         <div className="flex flex-col gap-2">
           <h1 className="h1-display text-ink" style={{ fontSize: 26 }}>
-            מחיקת הנתונים שלך
+            מחיקת הנתונים שלכם
           </h1>
           <p className="body-text text-ink-muted">
             הזינו את קוד המחיקה שקיבלתם בסוף התהליך. המחיקה מיידית,
@@ -32,7 +32,7 @@ export function DeleteForm() {
 
         {state.status === "success" ? (
           <p className="field-value text-ink">
-            הנתונים נמחקו. אין לנו יותר שום דבר עליך.
+            הנתונים נמחקו. אין לנו יותר שום דבר עליכם.
           </p>
         ) : (
           <form action={formAction} className="flex flex-col gap-4">

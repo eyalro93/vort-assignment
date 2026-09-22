@@ -29,10 +29,10 @@ export default async function LandingPage({
         <Logo />
 
         <div className="flex flex-col gap-6">
-          <h1 className="h1-display text-ink">כמה אתה שווה?</h1>
+          <h1 className="h1-display text-ink">כמה אתם שווים?</h1>
           <p className="h2-sub text-ink-body">
             בנצ׳מרק שכר לאנשי תקשורת ומדיה בישראל. חמש שאלות קצרות, וטווח
-            שכר מיידי למול אנשים כמוך בתעשייה.
+            שכר מיידי למול אנשים כמוכם בתעשייה.
           </p>
           {total !== null && total > 0 && (
             <p className="body-text text-ink-muted">
@@ -44,7 +44,7 @@ export default async function LandingPage({
 
         <div className="flex flex-col gap-3">
           <PrimaryLinkButton href={checkHref}>
-            בדוק את השווי שלך
+            בדקו את השווי שלכם
           </PrimaryLinkButton>
           <p className="body-text text-center text-ink-muted">
             שלוש דקות. בלי הרשמה. בלי קורות חיים בשלב הזה.

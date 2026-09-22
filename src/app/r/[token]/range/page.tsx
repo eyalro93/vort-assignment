@@ -22,7 +22,7 @@ export default async function RangeResultPage({
         <Logo size={20} />
 
         <div className="flex flex-col gap-2">
-          <p className="section-heading text-ink-muted">הטווח שלך</p>
+          <p className="section-heading text-ink-muted">הטווח שלכם</p>
           <h1 className="h1-display text-ink" style={{ fontSize: 22 }}>
             {levelLabel(respondent.track, respondent.level)} ·{" "}
             {trackLabel(respondent.track)}
@@ -40,24 +40,24 @@ export default async function RangeResultPage({
             />
             <p className="body-text text-ink-muted">
               מבוסס על {range.sampleSize.toLocaleString("he-IL")} אנשי
-              תקשורת בתפקיד דומה לשלך. החציון בקבוצה הזו הוא{" "}
+              תקשורת בתפקיד דומה לשלכם. החציון בקבוצה הזו הוא{" "}
               {formatILS(range.p50)}.
             </p>
           </div>
         ) : (
           <p className="body-text text-ink-muted">
-            עדיין אין מספיק נתונים בקטגוריה הזו, אבל אתה תהיה הראשון שמשפיע
-            עליה.
+            עדיין אין מספיק נתונים בקטגוריה הזו, אבל אתם עשויים להיות
+            הראשונים שמשפיעים עליה.
           </p>
         )}
 
         <div className="mt-auto flex flex-col gap-3">
           <PrimaryLinkButton href={`/r/${token}/details`}>
-            רוצה לדעת בדיוק איפה אתה עומד?
+            רוצים לדעת בדיוק איפה אתם עומדים?
           </PrimaryLinkButton>
           <p className="body-text text-center text-ink-muted">
-            תעלה קורות חיים, תקבל את האחוזון המדויק שלך בקבוצה, ותראה מה יכול
-            להעלות את השווי שלך
+            תעלו קורות חיים, תקבלו את האחוזון המדויק שלכם בקבוצה, ותראו מה
+            יכול להעלות את השווי שלכם
           </p>
         </div>
       </div>
