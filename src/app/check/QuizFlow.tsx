@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { Container } from "@/components/Container";
 import { ProgressBar } from "@/components/ProgressBar";
-import { ChoiceOption } from "@/components/ChoiceOption";
+import { ChoiceOption, ChoiceList } from "@/components/ChoiceOption";
 import {
   TRACKS,
   LEVELS_BY_TRACK,
@@ -161,7 +161,7 @@ export function QuizFlow({ referredByToken }: { referredByToken: string | null }
           {current.question}
         </h1>
 
-        <div className="flex flex-col gap-3">
+        <ChoiceList>
           {current.options.map((opt) => (
             <ChoiceOption
               key={opt.id}
@@ -170,7 +170,7 @@ export function QuizFlow({ referredByToken }: { referredByToken: string | null }
               onClick={() => handleSelect(opt.id, current.onSelect)}
             />
           ))}
-        </div>
+        </ChoiceList>
 
         {error && <p className="body-text text-coral">{error}</p>}
         {isPending && (

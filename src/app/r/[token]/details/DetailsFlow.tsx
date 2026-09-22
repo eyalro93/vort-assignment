@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Container } from "@/components/Container";
 import { Logo } from "@/components/Logo";
-import { ChoiceOption } from "@/components/ChoiceOption";
+import { ChoiceOption, ChoiceList } from "@/components/ChoiceOption";
 import { PrimaryButton } from "@/components/Button";
 import { AVAILABILITY_OPTIONS } from "@/lib/tracks";
 import { submitDetails } from "@/app/actions";
@@ -148,16 +148,18 @@ export function DetailsFlow({ token }: { token: string }) {
           />
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           <p className="field-label text-ink-muted">זמינות</p>
-          {AVAILABILITY_OPTIONS.map((opt) => (
-            <ChoiceOption
-              key={opt.id}
-              label={opt.label}
-              selected={availability === opt.id}
-              onClick={() => setAvailability(opt.id)}
-            />
-          ))}
+          <ChoiceList>
+            {AVAILABILITY_OPTIONS.map((opt) => (
+              <ChoiceOption
+                key={opt.id}
+                label={opt.label}
+                selected={availability === opt.id}
+                onClick={() => setAvailability(opt.id)}
+              />
+            ))}
+          </ChoiceList>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -201,7 +203,7 @@ export function DetailsFlow({ token }: { token: string }) {
 
 function ConsentPoint({ title, body }: { title: string; body: string }) {
   return (
-    <div className="flex flex-col gap-1 border-t border-divider pt-4">
+    <div className="flex flex-col gap-2 border-t border-divider pt-4">
       <p className="field-value text-ink">{title}</p>
       <p className="body-text text-ink-muted">{body}</p>
     </div>

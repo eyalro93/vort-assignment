@@ -83,7 +83,7 @@ export default async function ResultPage({
         )}
 
         {referrerComparison && (
-          <div className="flex flex-col gap-1 border-t border-divider pt-4">
+          <div className="flex flex-col gap-2 border-t border-divider pt-4">
             <p className="field-value text-ink">מול מי ששלח לך את זה</p>
             <p className="body-text text-ink-muted">
               {referrerComparison.diff === 0
