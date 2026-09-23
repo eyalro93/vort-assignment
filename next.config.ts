@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
-      bodySizeLimit: "8mb", // CVs (PDF/Word) can run a few MB
+      bodySizeLimit: "4.5mb", // matches Vercel's hard request-body cap
     },
   },
   // Lets phones on the same WiFi load the dev server via LAN IP for

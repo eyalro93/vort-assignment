@@ -55,7 +55,7 @@ export async function submitDetails(
 
   if (file instanceof File && file.size > 0) {
     if (file.size > MAX_CV_BYTES) {
-      return { error: "קובץ קורות החיים גדול מדי (מקסימום 5MB)" };
+      return { error: "קובץ קורות החיים גדול מדי (מקסימום 4MB)" };
     }
     if (!ACCEPTED_CV_TYPES.has(file.type)) {
       return { error: "יש להעלות קובץ PDF או Word בלבד" };

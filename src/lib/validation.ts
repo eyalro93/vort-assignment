@@ -51,7 +51,8 @@ export const quizSchema = z
 
 export type QuizAnswers = z.infer<typeof quizSchema>;
 
-export const MAX_CV_BYTES = 5 * 1024 * 1024; // 5MB
+// Vercel caps serverless request bodies at 4.5MB, so stay under that.
+export const MAX_CV_BYTES = 4 * 1024 * 1024; // 4MB
 export const ACCEPTED_CV_TYPES = new Set([
   "application/pdf",
   "application/msword",
