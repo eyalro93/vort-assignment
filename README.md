@@ -16,7 +16,7 @@ Next.js (App Router) + TypeScript + Postgres, no ORM (plain `pg` + one
 
 ## Running from scratch
 
-Prerequisites: Node 20+, Docker (for local Postgres).
+Prerequisites: Node 20.12+, Docker (for local Postgres).
 
 ```bash
 npm install
