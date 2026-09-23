@@ -10,7 +10,7 @@ import {
   quizSchema,
   detailsSchema,
   MAX_CV_BYTES,
-  ACCEPTED_CV_TYPES,
+  detectCvMimetype,
 } from "@/lib/validation";
 import { normalizeDeleteCode } from "@/lib/id";
 
@@ -57,11 +57,12 @@ export async function submitDetails(
     if (file.size > MAX_CV_BYTES) {
       return { error: "קובץ קורות החיים גדול מדי (מקסימום 4MB)" };
     }
-    if (!ACCEPTED_CV_TYPES.has(file.type)) {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const mimetype = detectCvMimetype(buffer);
+    if (!mimetype) {
       return { error: "יש להעלות קובץ PDF או Word בלבד" };
     }
-    const buffer = Buffer.from(await file.arrayBuffer());
-    cv = { filename: file.name, mimetype: file.type, data: buffer };
+    cv = { filename: file.name, mimetype, data: buffer };
   } else {
     return { error: "יש לצרף קובץ קורות חיים" };
   }

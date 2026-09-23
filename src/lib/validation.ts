@@ -53,11 +53,27 @@ export type QuizAnswers = z.infer<typeof quizSchema>;
 
 // Vercel caps serverless request bodies at 4.5MB, so stay under that.
 export const MAX_CV_BYTES = 4 * 1024 * 1024; // 4MB
-export const ACCEPTED_CV_TYPES = new Set([
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-]);
+const PDF_MAGIC = Buffer.from("%PDF-");
+const ZIP_MAGIC = Buffer.from([0x50, 0x4b, 0x03, 0x04]);
+const OLE_MAGIC = Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]);
+
+/**
+ * Identifies a CV upload from its bytes, not the browser-reported type (which
+ * the client controls, and which some phones leave blank for Word files).
+ * Returns the mimetype to store, or null if it isn't a real PDF or Word file.
+ * This confirms the format only -- not that the document is actually a CV.
+ */
+export function detectCvMimetype(data: Buffer): string | null {
+  // The PDF spec lets the header sit anywhere in the first 1KB.
+  if (data.subarray(0, 1024).includes(PDF_MAGIC)) return "application/pdf";
+  // .docx is a ZIP; its entry names (word/document.xml) are stored uncompressed.
+  if (data.subarray(0, 4).equals(ZIP_MAGIC) && data.includes("word/")) {
+    return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+  }
+  // Legacy .doc is an OLE compound file.
+  if (data.subarray(0, 8).equals(OLE_MAGIC)) return "application/msword";
+  return null;
+}
 
 export const detailsSchema = z.object({
   reportedSalary: z.coerce.number().int().min(3000).max(200000),
