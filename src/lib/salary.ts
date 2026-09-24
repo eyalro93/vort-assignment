@@ -39,9 +39,15 @@ export const BASE_RANGE: Record<TrackId, Record<string, [number, number]>> = {
   },
 };
 
-// Multiplied onto the base range. A national broadcaster/major outlet (or
-// in-house corporate comms, for PR) pays a premium; freelance carries the
-// widest spread, reflected by giving it extra noise below.
+// Synthetic modeling assumptions, not measured salary effects: unlike the
+// base ranges above, none of the workplace / experience / team multipliers
+// comes from a public source. They shape the synthetic seed population and
+// adjust a person's range and percentile for their profile (see
+// profileMultiplier below).
+//
+// A national broadcaster/major outlet (or in-house corporate comms, for PR)
+// is assumed to pay a premium; freelance carries the widest spread,
+// reflected by giving it extra noise below.
 export const WORKPLACE_MULTIPLIER: Record<string, number> = {
   major_outlet: 1.15,
   in_house: 1.15,
@@ -77,19 +83,27 @@ function noise(rng: Rng, spread: number): number {
   return 1 + (bell - 0.5) * 2 * spread;
 }
 
+export type Profile = Pick<
+  Cohort,
+  "workplaceType" | "yearsExperience" | "managesTeam"
+>;
+
+/** Combined workplace x experience x team multiplier (synthetic assumptions). */
+export function profileMultiplier(profile: Profile): number {
+  const workplaceMult = WORKPLACE_MULTIPLIER[profile.workplaceType] ?? 1;
+  const experienceMult = EXPERIENCE_MULTIPLIER[profile.yearsExperience] ?? 1;
+  const teamMult = profile.managesTeam ? MANAGES_TEAM_MULTIPLIER : 1;
+  return workplaceMult * experienceMult * teamMult;
+}
+
 export function generateSalary(cohort: Cohort, rng: Rng): number {
   const [min, max] = BASE_RANGE[cohort.track as TrackId]?.[cohort.level] ?? [
     10000, 15000,
   ];
   const base = min + rng() * (max - min);
-
-  const workplaceMult = WORKPLACE_MULTIPLIER[cohort.workplaceType] ?? 1;
-  const experienceMult = EXPERIENCE_MULTIPLIER[cohort.yearsExperience] ?? 1;
-  const teamMult = cohort.managesTeam ? MANAGES_TEAM_MULTIPLIER : 1;
   const spread = cohort.workplaceType === "freelance" ? 0.22 : 0.12;
 
-  const salary =
-    base * workplaceMult * experienceMult * teamMult * noise(rng, spread);
+  const salary = base * profileMultiplier(cohort) * noise(rng, spread);
 
   return Math.round(salary / 100) * 100;
 }
@@ -103,11 +117,71 @@ export function estimatedSalary(cohort: Cohort): number {
   ];
   const base = (min + max) / 2;
 
-  const workplaceMult = WORKPLACE_MULTIPLIER[cohort.workplaceType] ?? 1;
-  const experienceMult = EXPERIENCE_MULTIPLIER[cohort.yearsExperience] ?? 1;
-  const teamMult = cohort.managesTeam ? MANAGES_TEAM_MULTIPLIER : 1;
+  return base * profileMultiplier(cohort);
+}
 
-  return base * workplaceMult * experienceMult * teamMult;
+export type SalarySample = Profile & { salary: number };
+
+// Range and percentile stay within a (track, level) cohort but are
+// "profile-adjusted": every salary is divided by its own adjustment
+// multiplier before comparing, so workplace, experience and team management
+// count without splitting the cohort into cells too small to mean anything.
+//
+// Because the multipliers are synthetic assumptions, only half of each
+// profile's deviation from 1.0 is applied -- at full strength they swung
+// the percentile by 50+ points on a single answer.
+const ADJUSTMENT_STRENGTH = 0.5;
+
+function adjustmentMultiplier(profile: Profile): number {
+  return 1 + (profileMultiplier(profile) - 1) * ADJUSTMENT_STRENGTH;
+}
+
+function adjustedSalaries(samples: SalarySample[]): number[] {
+  return samples
+    .map((s) => s.salary / adjustmentMultiplier(s))
+    .sort((a, b) => a - b);
+}
+
+/** 15th/50th/85th percentile of the cohort, scaled to this person's profile. */
+export function profileAdjustedRange(
+  samples: SalarySample[],
+  profile: Profile
+): { p15: number; p50: number; p85: number; sampleSize: number } | null {
+  if (samples.length === 0) return null;
+
+  const adjusted = adjustedSalaries(samples);
+  const mult = adjustmentMultiplier(profile);
+  const at = (p: number) => {
+    const value =
+      adjusted[Math.min(adjusted.length - 1, Math.floor(p * adjusted.length))];
+    return Math.round((value * mult) / 100) * 100;
+  };
+
+  return {
+    p15: at(0.15),
+    p50: at(0.5),
+    p85: at(0.85),
+    sampleSize: samples.length,
+  };
+}
+
+/** Share (0-100) of the cohort at or below this salary, both sides adjusted. */
+export function profileAdjustedPercentile(
+  samples: SalarySample[],
+  profile: Profile,
+  salary: number
+): number {
+  if (samples.length === 0) return 50;
+
+  const target = salary / adjustmentMultiplier(profile);
+  const below = adjustedSalaries(samples).filter((s) => s <= target).length;
+  return Math.round((below / samples.length) * 100);
+}
+
+// Presentation-only guard: a 0 or 100 would read as "earns more than 0%" or
+// "top 100%", so anything shown to a person (or shared) is clamped to 1-99.
+export function displayPercentile(percentile: number): number {
+  return Math.min(99, Math.max(1, percentile));
 }
 
 export function formatILS(amount: number): string {

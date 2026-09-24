@@ -14,7 +14,7 @@ export default async function RangeResultPage({
   const respondent = await getRespondentByToken(token);
   if (!respondent) notFound();
 
-  const range = await getCohortRange(respondent.track, respondent.level);
+  const range = await getCohortRange(respondent);
 
   return (
     <Container>
@@ -40,7 +40,8 @@ export default async function RangeResultPage({
             />
             <p className="body-text text-ink-muted">
               מבוסס על {range.sampleSize.toLocaleString("he-IL")} אנשי
-              תקשורת בתפקיד דומה לשלכם. החציון בקבוצה הזו הוא{" "}
+              תקשורת בתפקיד דומה לשלכם, בהתאמה לפרופיל המקצועי שלכם. החציון
+              הוא{" "}
               {formatILS(range.p50)}.
             </p>
           </div>

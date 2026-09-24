@@ -46,8 +46,9 @@ npm run db:reset    # re-applies schema + re-seeds (safe to re-run any time)
 1. **`/check`** — five tap-to-advance questions (track, level, workplace
    type, years of experience, manages a team). No typing required.
 2. **`/r/[token]/range`** — an immediate free result: the 15th–85th
-   percentile salary range for that exact cohort, computed live from the
-   respondent pool (real + synthetic).
+   percentile salary range for that track and level, computed live from the
+   respondent pool (real + synthetic) and adjusted for the person's
+   workplace type, experience and team management (see "Data model").
 3. **`/r/[token]/details`** — the ask: CV upload, salary expectation,
    availability, and an optional list of employers to hide the profile from.
    Followed by a dedicated consent screen (unchecked by default) explaining
@@ -70,10 +71,25 @@ and range calculations query both together — treating the seed data as the
 seeded 3M-profile backdrop the real product would have.
 
 `db/seed.ts` generates ~70 synthetic respondents per (track × level) cohort
-using a deterministic PRNG (same seed → same dataset every run). Salaries are
-generated from base ranges per track/level, adjusted by workplace type,
-experience, and team management, plus randomized noise — see
-`src/lib/salary.ts` for the exact formula.
+using a deterministic PRNG (same seed → same dataset every run). Years of
+experience are drawn to fit the level (juniors mostly 0–2 years, heads
+mostly 11+, with some overlap). Salaries are generated from base ranges per
+track/level, adjusted by workplace type, experience, and team management,
+plus randomized noise — see `src/lib/salary.ts` for the exact formula.
+
+Ranges and percentiles compare people within their track and level, but
+profile-adjusted: each salary is divided by an adjustment based on that
+person's workplace × experience × team multiplier before comparing, then the
+range is scaled back to the viewer's own profile. That way all three answers
+count without splitting each cohort into cells of a few people. Because the
+multipliers are assumptions, the adjustment applies only half of each
+profile's deviation from 1.0 (`ADJUSTMENT_STRENGTH` in `salary.ts`), and the
+percentile shown or shared is clamped to 1–99.
+
+**Those multipliers are synthetic modeling assumptions, not measured
+effects.** Only the base ranges below are based on public sources; the
+workplace, experience and team-management multipliers, and the
+experience-by-level mix in the seed, are hand-picked estimates.
 
 **Where the base salary ranges came from:** journalist ranges are grounded in
 Globes' wage survey and Bizportal's reporting on Israeli journalist salaries

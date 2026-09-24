@@ -41,6 +41,25 @@ function pick<T>(rng: Rng, options: readonly T[]): T {
   return options[Math.floor(rng() * options.length)];
 }
 
+function weightedPick<T>(rng: Rng, options: readonly T[], weights: number[]): T {
+  let r = rng() * weights.reduce((sum, w) => sum + w, 0);
+  for (let i = 0; i < options.length; i++) {
+    r -= weights[i];
+    if (r < 0) return options[i];
+  }
+  return options[options.length - 1];
+}
+
+// Years of experience by level, in EXPERIENCE_BUCKETS order (0-2, 3-5, 6-10,
+// 11+). Each level centers on one bucket with some overlap into its
+// neighbours. A synthetic assumption, like the multipliers in salary.ts.
+const EXPERIENCE_WEIGHTS_BY_LEVEL: Record<string, number[]> = {
+  junior: [0.7, 0.25, 0.05, 0],
+  mid: [0.15, 0.6, 0.2, 0.05],
+  senior: [0, 0.2, 0.6, 0.2],
+  head: [0, 0.05, 0.3, 0.65],
+};
+
 async function main() {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
   const rng = mulberry32(20260101); // seeded on a fixed "date" for reproducibility
@@ -54,7 +73,11 @@ async function main() {
     for (const level of levels) {
       for (let i = 0; i < SAMPLES_PER_COHORT; i++) {
         const workplaceType = pick(rng, workplaces).id;
-        const yearsExperience = pick(rng, EXPERIENCE_BUCKETS).id;
+        const yearsExperience = weightedPick(
+          rng,
+          EXPERIENCE_BUCKETS,
+          EXPERIENCE_WEIGHTS_BY_LEVEL[level.id]
+        ).id;
         // Team management gets more likely at more senior levels.
         const teamOdds =
           { junior: 0.03, mid: 0.15, senior: 0.4, head: 0.85 }[level.id] ?? 0.1;

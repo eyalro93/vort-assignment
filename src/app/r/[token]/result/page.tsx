@@ -10,7 +10,7 @@ import {
   getCohortRange,
 } from "@/lib/respondents";
 import { trackLabel, levelLabel } from "@/lib/tracks";
-import { formatILS } from "@/lib/salary";
+import { displayPercentile, formatILS } from "@/lib/salary";
 import { getGrowthSuggestions } from "@/lib/growth-suggestions";
 
 async function getOrigin() {
@@ -28,32 +28,34 @@ export default async function ResultPage({
   if (!respondent) notFound();
   if (respondent.reported_salary === null) redirect(`/r/${token}/details`);
 
-  const [percentile, range, origin] = await Promise.all([
-    computePercentile(respondent.track, respondent.level, respondent.reported_salary),
-    getCohortRange(respondent.track, respondent.level),
+  const [rawPercentile, range, origin] = await Promise.all([
+    computePercentile(respondent, respondent.reported_salary),
+    getCohortRange(respondent),
     getOrigin(),
   ]);
-  const topPercent = Math.max(1, 100 - percentile);
+  const percentile = displayPercentile(rawPercentile);
+  const topPercent = 100 - percentile;
   const growthSuggestions = getGrowthSuggestions(respondent);
 
   let referrerComparison: { topPercent: number; diff: number } | null = null;
   if (respondent.referred_by_token) {
     const referrer = await getRespondentByToken(respondent.referred_by_token);
     if (referrer && referrer.reported_salary !== null) {
-      const referrerPercentile = await computePercentile(
-        referrer.track,
-        referrer.level,
-        referrer.reported_salary
+      const referrerPercentile = displayPercentile(
+        await computePercentile(referrer, referrer.reported_salary)
       );
       referrerComparison = {
-        topPercent: Math.max(1, 100 - referrerPercentile),
+        topPercent: 100 - referrerPercentile,
         diff: percentile - referrerPercentile,
       };
     }
   }
 
   const shareLink = `${origin}/from/${token}`;
-  const shareMessage = `אני בטופ ${topPercent}% מ${trackLabel(respondent.track)} בישראל. תבדקו גם אתם כמה אתם שווים:`;
+  // Leading RLM (U+200F): the message opens with "Vort", and WhatsApp picks
+  // text direction from the first strong character -- without it the whole
+  // Hebrew message renders left-to-right.
+  const shareMessage = `‏Vort מיקם אותי בטופ ${topPercent}% מ${trackLabel(respondent.track)} ברמה שלי. איפה אתם?`;
   const whatsappHref = `https://wa.me/?text=${encodeURIComponent(`${shareMessage} ${shareLink}`)}`;
 
   return (
@@ -71,7 +73,8 @@ export default async function ResultPage({
           </p>
           <p className="body-text text-ink-muted">
             אתם מרוויחים יותר מ-{percentile}% מ
-            {trackLabel(respondent.track)} בדרגתכם שכבר בדקו.
+            {trackLabel(respondent.track)} בדרגתכם שכבר בדקו, בהתאמה לפרופיל
+            המקצועי שלכם.
           </p>
         </div>
 
@@ -80,7 +83,7 @@ export default async function ResultPage({
         {range && (
           <p className="body-text text-ink-muted">
             השכר שדיווחתם: <span className="field-value text-ink">{formatILS(respondent.reported_salary)}</span>.
-            הטווח בקבוצה שלכם: {formatILS(range.p15)} – {formatILS(range.p85)}.
+            הטווח לפרופיל שלכם: {formatILS(range.p15)} – {formatILS(range.p85)}.
           </p>
         )}
 

@@ -1,6 +1,13 @@
 import { query, queryOne } from "./db";
 import { createDeleteCode, createToken } from "./id";
 import type { QuizAnswers } from "./validation";
+import {
+  displayPercentile,
+  profileAdjustedPercentile,
+  profileAdjustedRange,
+  type Profile,
+  type SalarySample,
+} from "./salary";
 
 export type Respondent = {
   id: string;
@@ -63,28 +70,47 @@ export async function getRespondentByToken(
   ]);
 }
 
-export async function getCohortRange(
+/** The quiz answers that position someone within their (track, level) cohort. */
+export type RespondentProfile = Pick<
+  Respondent,
+  "track" | "level" | "workplace_type" | "years_experience" | "manages_team"
+>;
+
+function toProfile(
+  r: Pick<Respondent, "workplace_type" | "years_experience" | "manages_team">
+): Profile {
+  return {
+    workplaceType: r.workplace_type,
+    yearsExperience: r.years_experience,
+    managesTeam: r.manages_team,
+  };
+}
+
+async function getCohortSamples(
   track: string,
   level: string
-): Promise<{ p15: number; p50: number; p85: number; sampleSize: number } | null> {
-  const rows = await query<{ reported_salary: number }>(
-    `select reported_salary from respondents
-     where track = $1 and level = $2 and reported_salary is not null
-     order by reported_salary asc`,
+): Promise<SalarySample[]> {
+  const rows = await query<
+    Pick<Respondent, "workplace_type" | "years_experience" | "manages_team"> & {
+      reported_salary: number;
+    }
+  >(
+    `select reported_salary, workplace_type, years_experience, manages_team
+     from respondents
+     where track = $1 and level = $2 and reported_salary is not null`,
     [track, level]
   );
-  if (rows.length === 0) return null;
+  return rows.map((r) => ({
+    ...toProfile(r),
+    salary: Number(r.reported_salary),
+  }));
+}
 
-  const salaries = rows.map((r) => Number(r.reported_salary));
-  const at = (p: number) =>
-    salaries[Math.min(salaries.length - 1, Math.floor(p * salaries.length))];
-
-  return {
-    p15: at(0.15),
-    p50: at(0.5),
-    p85: at(0.85),
-    sampleSize: salaries.length,
-  };
+export async function getCohortRange(
+  respondent: RespondentProfile
+): Promise<{ p15: number; p50: number; p85: number; sampleSize: number } | null> {
+  const samples = await getCohortSamples(respondent.track, respondent.level);
+  return profileAdjustedRange(samples, toProfile(respondent));
 }
 
 export async function getCohortSize(track: string): Promise<number> {
@@ -96,20 +122,11 @@ export async function getCohortSize(track: string): Promise<number> {
 }
 
 export async function computePercentile(
-  track: string,
-  level: string,
+  respondent: RespondentProfile,
   salary: number
 ): Promise<number> {
-  const row = await queryOne<{ below: string; total: string }>(
-    `select
-       count(*) filter (where reported_salary <= $3)::text as below,
-       count(*)::text as total
-     from respondents
-     where track = $1 and level = $2 and reported_salary is not null`,
-    [track, level, salary]
-  );
-  if (!row || Number(row.total) === 0) return 50;
-  return Math.round((Number(row.below) / Number(row.total)) * 100);
+  const samples = await getCohortSamples(respondent.track, respondent.level);
+  return profileAdjustedPercentile(samples, toProfile(respondent), salary);
 }
 
 export type SaveDetailsInput = {
@@ -159,14 +176,13 @@ export async function getReferralCard(
   if (!respondent || respondent.reported_salary === null) return null;
 
   const percentile = await computePercentile(
-    respondent.track,
-    respondent.level,
+    respondent,
     respondent.reported_salary
   );
   return {
     track: respondent.track,
     level: respondent.level,
-    topPercent: Math.max(1, 100 - percentile),
+    topPercent: 100 - displayPercentile(percentile),
   };
 }
 
