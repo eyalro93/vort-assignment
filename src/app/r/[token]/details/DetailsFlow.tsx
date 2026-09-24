@@ -177,8 +177,12 @@ export function DetailsFlow({ token }: { token: string }) {
 
         <div className="flex flex-col gap-2">
           <label htmlFor="exclude" className="field-label text-ink-muted">
-            יש מקום עבודה שלא יראה את הפרופיל שלכם? (רשות)
+            יש מקום עבודה שתרצו להסתיר ממנו את הפרופיל שלכם? (רשות)
           </label>
+          <p className="body-text text-ink-muted">
+            ציינו מקומות עבודה שלא יוכלו לראות את הפרופיל שלכם או לדעת שאתם
+            פתוחים להצעות.
+          </p>
           <input
             id="exclude"
             type="text"
