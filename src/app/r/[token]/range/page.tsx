@@ -57,9 +57,10 @@ export default async function RangeResultPage({
             רוצים לדעת בדיוק איפה אתם עומדים?
           </PrimaryLinkButton>
           <div className="flex flex-col gap-1 text-center">
-            <p className="field-value text-ink">הטווח הוא רק ההתחלה.</p>
+            <p className="field-value text-ink">רוצים תמונה אישית יותר?</p>
             <p className="body-text text-ink-muted">
-              גלו את מיקומכם המדויק ומה יכול להביא אתכם לשלב הבא.
+              גלו איפה אתם עומדים ביחס לאנשים כמוכם - ומה בניסיון שלכם יכול
+              להעלות את השכר.
             </p>
           </div>
         </div>
