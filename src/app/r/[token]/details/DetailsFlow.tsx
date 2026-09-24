@@ -179,10 +179,6 @@ export function DetailsFlow({ token }: { token: string }) {
           <label htmlFor="exclude" className="field-label text-ink-muted">
             יש מקום עבודה שתרצו להסתיר ממנו את הפרופיל שלכם? (רשות)
           </label>
-          <p className="body-text text-ink-muted">
-            ציינו מקומות עבודה שלא יוכלו לראות את הפרופיל שלכם או לדעת שאתם
-            פתוחים להצעות.
-          </p>
           <input
             id="exclude"
             type="text"
@@ -191,6 +187,9 @@ export function DetailsFlow({ token }: { token: string }) {
             placeholder="שמות חברות, מופרדים בפסיקים"
             className="field-value rounded-lg border border-divider px-4 py-3 text-ink outline-none focus:border-coral"
           />
+          <p className="body-text text-ink-muted">
+            הם לא יוכלו לראות את הפרופיל שלכם או לדעת שאתם פתוחים להצעות.
+          </p>
         </div>
 
         {error && <p className="body-text text-coral">{error}</p>}
