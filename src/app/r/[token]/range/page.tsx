@@ -56,13 +56,10 @@ export default async function RangeResultPage({
           <PrimaryLinkButton href={`/r/${token}/details`}>
             רוצים לדעת בדיוק איפה אתם ממוקמים?
           </PrimaryLinkButton>
-          <div className="flex flex-col gap-1 text-center">
-            <p className="field-value text-ink">רוצים תמונה אישית יותר?</p>
-            <p className="body-text text-ink-muted">
-              העלו קורות חיים וגלו איפה אתם עומדים ביחס לאנשים כמוכם&nbsp;— ומה
-              בניסיון שלכם יכול להעלות את השכר.
-            </p>
-          </div>
+          <p className="body-text text-center text-ink-muted">
+            העלו קורות חיים וגלו איפה אתם עומדים ביחס לאנשים כמוכם&nbsp;— ומה
+            בניסיון שלכם יכול להעלות את השכר.
+          </p>
         </div>
       </div>
     </Container>
