@@ -55,7 +55,7 @@ export default async function ResultPage({
   // Leading RLM (U+200F): the message opens with "Vort", and WhatsApp picks
   // text direction from the first strong character -- without it the whole
   // Hebrew message renders left-to-right.
-  const shareMessage = `‏Vort מיקם אותי בטופ ${topPercent}% מ${trackLabel(respondent.track)} ברמה שלי. איפה אתם?`;
+  const shareMessage = `‏Vort מיקם אותי בטופ ${topPercent}% בתחום ${trackLabel(respondent.track)} ברמה שלי. איפה אתם?`;
   const whatsappHref = `https://wa.me/?text=${encodeURIComponent(`${shareMessage} ${shareLink}`)}`;
 
   return (
