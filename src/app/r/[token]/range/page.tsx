@@ -54,7 +54,7 @@ export default async function RangeResultPage({
 
         <div className="mt-auto flex flex-col gap-3">
           <PrimaryLinkButton href={`/r/${token}/details`}>
-            רוצים לדעת בדיוק איפה אתם עומדים?
+            רוצים לדעת בדיוק איפה אתם ממוקמים?
           </PrimaryLinkButton>
           <div className="flex flex-col gap-1 text-center">
             <p className="field-value text-ink">רוצים תמונה אישית יותר?</p>
