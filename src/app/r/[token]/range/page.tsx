@@ -59,8 +59,8 @@ export default async function RangeResultPage({
           <div className="flex flex-col gap-1 text-center">
             <p className="field-value text-ink">רוצים תמונה אישית יותר?</p>
             <p className="body-text text-ink-muted">
-              גלו איפה אתם עומדים ביחס לאנשים כמוכם - ומה בניסיון שלכם יכול
-              להעלות את השכר.
+              העלו קורות חיים וגלו איפה אתם עומדים ביחס לאנשים כמוכם — ומה
+              בניסיון שלכם יכול להעלות את השכר.
             </p>
           </div>
         </div>
