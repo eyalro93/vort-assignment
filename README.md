@@ -1,22 +1,21 @@
-# Vort — כמה אתה שווה
+# Vort — כמה אתם שווים
 
-Candidate-facing salary benchmark for media & communications professionals in
-Israel, built for the Vort home assignment. Five quick questions get you a
-free salary range against people in your role; uploading a CV, your salary
-expectation, availability, and consent unlocks your exact percentile — which
-is what Vort actually needs to fill in behind the scenes.
+כלי להשוואת שכר לאנשי מדיה ותקשורת בישראל, שנבנה במסגרת מטלת הבית של Vort.
+חמש שאלות קצרות נותנות טווח שכר חינמי מול אנשים באותו תפקיד. העלאת קורות
+חיים, ציפיית שכר, זמינות והסכמה פותחות את האחוזון המדויק — וזה בדיוק המידע
+ש-Vort צריכה להשלים מאחורי הקלעים.
 
-See the PR description for the product reasoning, the viral mechanic, the
-funnel estimate, and what was cut.
+הנימוקים למוצר, מנגנון השיתוף, הערכת ההמרה ומה נשאר בחוץ מופיעים בתיאור
+ה-PR.
 
-## Stack
+## טכנולוגיות
 
-Next.js (App Router) + TypeScript + Postgres, no ORM (plain `pg` + one
-`schema.sql` file — see "Why no ORM" below).
+Next.js (App Router) + TypeScript + Postgres, בלי ORM (`pg` רגיל + קובץ
+`schema.sql` אחד — ראו "למה בלי ORM" בהמשך).
 
-## Running from scratch
+## הרצה מאפס
 
-Prerequisites: Node 20.12+, Docker (for local Postgres).
+דרישות מקדימות: Node 20.12 ומעלה, Docker (בשביל Postgres מקומי).
 
 ```bash
 npm install
@@ -29,11 +28,10 @@ npm run db:seed     # generates ~1,400 synthetic respondents across every cohort
 npm run dev         # http://localhost:3000
 ```
 
-To point at a different Postgres instance (e.g. a managed one for a live
-deploy), just set `DATABASE_URL` in `.env` before running `db:migrate` /
-`db:seed`.
+כדי לעבוד מול מופע Postgres אחר (למשל שירות מנוהל לפריסה חיה), מספיק להגדיר
+את `DATABASE_URL` בקובץ `.env` לפני שמריצים `db:migrate` / `db:seed`.
 
-### Other scripts
+### סקריפטים נוספים
 
 ```bash
 npm run build       # production build
@@ -41,79 +39,70 @@ npm run lint        # eslint
 npm run db:reset    # re-applies schema + re-seeds (safe to re-run any time)
 ```
 
-## How the flow works
+## איך התהליך עובד
 
-1. **`/check`** — five tap-to-advance questions (track, level, workplace
-   type, years of experience, manages a team). No typing required.
-2. **`/r/[token]/range`** — an immediate free result: the 15th–85th
-   percentile salary range for that track and level, computed live from the
-   respondent pool (real + synthetic) and adjusted for the person's
-   workplace type, experience and team management (see "Data model").
-3. **`/r/[token]/details`** — the ask: CV upload, salary expectation,
-   availability, and an optional list of employers to hide the profile from.
-   Followed by a dedicated consent screen (unchecked by default) explaining
-   in plain Hebrew what happens to the data.
-4. **`/r/[token]/result`** — the precise percentile, a comparison against
-   whoever referred them (if any), a WhatsApp share button, and their
-   personal deletion code.
-5. **`/from/[token]`** — the link that actually gets shared. Personalized
-   landing page + a dynamic Open Graph image (`opengraph-image.tsx`, via
-   `next/og`) showing the sharer's percentile, so the WhatsApp/social link
-   preview itself is the hook.
-6. **`/delete`** — enter a deletion code, and the row (CV bytes included) is
-   hard-deleted immediately. No soft-delete flag, no "contact us."
+1. **`/check`** — חמש שאלות בלחיצה בלבד (תחום, דרגה, סוג מקום עבודה, שנות
+   ניסיון, ניהול צוות). בלי הקלדה.
+2. **`/r/[token]/range`** — תוצאה חינמית מיידית: טווח השכר בין האחוזון ה-15
+   ל-85 באותו תחום ובאותה דרגה, מחושב בזמן אמת ממאגר המשיבים (אמיתיים +
+   סינתטיים) ומותאם לסוג מקום העבודה, לניסיון ולניהול צוות (ראו "מודל
+   הנתונים").
+3. **`/r/[token]/details`** — הבקשה: העלאת קורות חיים, ציפיית שכר, זמינות,
+   ורשימה אופציונלית של מקומות עבודה שהפרופיל יוסתר מהם. אחריו מגיע מסך
+   הסכמה נפרד (לא מסומן מראש) שמסביר בעברית פשוטה מה קורה עם המידע.
+4. **`/r/[token]/result`** — האחוזון המדויק, השוואה למי ששלח את הקישור (אם
+   יש), כפתור שיתוף לוואטסאפ, וקוד מחיקה אישי.
+5. **`/from/[token]`** — הקישור שבפועל משותף. עמוד נחיתה אישי + תמונת Open
+   Graph דינמית (`opengraph-image.tsx`, דרך `next/og`) שמציגה את האחוזון של
+   מי ששיתף, כך שתצוגת הקישור בוואטסאפ או ברשתות היא עצמה ה-hook.
+6. **`/delete`** — מזינים קוד מחיקה, והשורה (כולל קובץ קורות החיים) נמחקת
+   לצמיתות מיד. בלי סימון "נמחק", בלי "צרו איתנו קשר".
 
-## Data model
+## מודל הנתונים
 
-One `respondents` table (see `db/schema.sql`) holds both real submissions and
-the synthetic seed population, distinguished by `is_synthetic`. Percentile
-and range calculations query both together — treating the seed data as the
-seeded 3M-profile backdrop the real product would have.
+טבלה אחת, `respondents` (ראו `db/schema.sql`), מחזיקה גם הגשות אמיתיות וגם
+את האוכלוסייה הסינתטית, והן מובחנות לפי `is_synthetic`. חישובי האחוזון
+והטווח שולפים את שתיהן יחד — הנתונים הסינתטיים משמשים כתחליף למאגר 3 מיליון
+הפרופילים שהמוצר האמיתי היה נשען עליו.
 
-`db/seed.ts` generates ~70 synthetic respondents per (track × level) cohort
-using a deterministic PRNG (same seed → same dataset every run). Years of
-experience are drawn to fit the level (juniors mostly 0–2 years, heads
-mostly 11+, with some overlap). Salaries are generated from base ranges per
-track/level, adjusted by workplace type, experience, and team management,
-plus randomized noise — see `src/lib/salary.ts` for the exact formula.
+`db/seed.ts` מייצר כ-70 משיבים סינתטיים לכל שילוב של תחום × דרגה בעזרת
+מחולל מספרים אקראיים דטרמיניסטי (אותו seed → אותם נתונים בכל הרצה). שנות
+הניסיון נבחרות בהתאם לדרגה (ג'וניורים בעיקר 0–2 שנים, ראשי תחום בעיקר 11+,
+עם חפיפה מסוימת). השכר נוצר מטווחי בסיס לכל תחום ודרגה, מותאם לסוג מקום
+העבודה, לניסיון ולניהול צוות, בתוספת רעש אקראי — הנוסחה המדויקת ב-
+`src/lib/salary.ts`.
 
-Ranges and percentiles compare people within their track and level, but
-profile-adjusted: each salary is divided by an adjustment based on that
-person's workplace × experience × team multiplier before comparing, then the
-range is scaled back to the viewer's own profile. That way all three answers
-count without splitting each cohort into cells of a few people. Because the
-multipliers are assumptions, the adjustment applies only half of each
-profile's deviation from 1.0 (`ADJUSTMENT_STRENGTH` in `salary.ts`), and the
-percentile shown or shared is clamped to 1–99.
+הטווחים והאחוזונים משווים אנשים בתוך אותו תחום ואותה דרגה, אבל בהתאמה
+לפרופיל: כל שכר מחולק בהתאמה שמבוססת על מכפיל מקום העבודה × ניסיון × ניהול
+צוות של אותו אדם לפני ההשוואה, ואז הטווח מוכפל חזרה לפי הפרופיל של מי שצופה
+בו. כך שלוש התשובות משפיעות בלי לפצל כל קבוצה לתאים של אנשים בודדים. מכיוון
+שהמכפילים הם הנחות, ההתאמה מפעילה רק מחצית מהסטייה של כל פרופיל מ-1.0
+(`ADJUSTMENT_STRENGTH` ב-`salary.ts`), והאחוזון שמוצג או משותף מוגבל לטווח
+1–99.
 
-**Those multipliers are synthetic modeling assumptions, not measured
-effects.** Only the base ranges below are based on public sources; the
-workplace, experience and team-management multipliers, and the
-experience-by-level mix in the seed, are hand-picked estimates.
+**המכפילים האלה הם הנחות מידול סינתטיות, לא השפעות שנמדדו.** רק טווחי הבסיס
+שבהמשך מבוססים על מקורות פומביים; המכפילים של מקום עבודה, ניסיון וניהול
+צוות, וגם התפלגות הניסיון לפי דרגה ב-seed, הם הערכות שנבחרו ידנית.
 
-**Where the base salary ranges came from:** journalist ranges are grounded in
-Globes' wage survey and Bizportal's reporting on Israeli journalist salaries
-(junior ~8-12k ILS/month, senior crossing 20k, editors-in-chief at 22-35k+),
-cross-checked against SalaryExpert's Israel editor/newscaster figures and the
-July 2025 average Israeli monthly wage (~14.1k ILS). Producer and video
-editor ranges aren't independently surveyed publicly, so they're interpolated
-from the journalist/editor anchors at a slightly lower band, which is
-directionally consistent with how those roles are generally compensated in
-Israeli media.
+**מאיפה הגיעו טווחי הבסיס:** הטווחים של עיתונאים מבוססים על סקר השכר של
+גלובס ועל הדיווח של ביזפורטל על שכר עיתונאים בישראל (מתחילים כ-8–12 אלף ₪
+בחודש, בכירים מעל 20 אלף, עורכים ראשיים 22–35 אלף ומעלה), בהצלבה מול
+הנתונים של SalaryExpert לעורכים ולמגישי חדשות בישראל ומול השכר הממוצע במשק
+ביולי 2025 (כ-14.1 אלף ₪). על מפיקים ועורכי וידאו אין סקרים פומביים נפרדים,
+ולכן הטווחים שלהם נגזרו מנקודות העוגן של עיתונאים ועורכים ברמה מעט נמוכה
+יותר, בהתאם לכיוון הכללי של התגמול בתפקידים האלה בתקשורת הישראלית.
 
-## Why no ORM
+## למה בלי ORM
 
-Prisma's current CLI (v8, RC at the time of writing) has a materially
-different init flow than what most reviewers will have used, which felt like
-a bad bet for something meant to run cleanly on someone else's machine.
-Given a single, fairly simple table, a plain `pg` client with one readable
-`schema.sql` file seemed more transparent than introducing an ORM (and its
-version risk) for this scope.
+ה-CLI הנוכחי של Prisma (גרסה 8, RC בזמן הכתיבה) כולל תהליך אתחול שונה
+משמעותית ממה שרוב הבודקים מכירים, וזה נראה כמו הימור גרוע עבור משהו שאמור
+לרוץ בלי תקלות על מחשב של מישהו אחר. עם טבלה אחת ופשוטה יחסית, לקוח `pg`
+רגיל עם קובץ `schema.sql` אחד וקריא נראה שקוף יותר מהוספת ORM (והסיכון
+שבגרסאות שלו) להיקף הזה.
 
-## Design system
+## מערכת עיצוב
 
-Implemented per the brand spec: Heebo throughout, the exact color tokens
-(`src/app/globals.css`), RTL, mobile-first single-column layout, tabular
-numerals on every number, and coral used only for the logo, links, and one
-primary action per screen — never as a heading color, background, or behind
-a number.
+מיושם לפי הגדרות המותג: Heebo בכל מקום, טוקני הצבע המדויקים
+(`src/app/globals.css`), RTL, פריסה של עמודה אחת בגישת mobile-first, ספרות
+טבלאיות בכל מספר, וצבע הקורל משמש רק ללוגו, לקישורים ולפעולה ראשית אחת בכל
+מסך — אף פעם לא כצבע כותרת, כרקע או מאחורי מספר.
